@@ -1,8 +1,13 @@
-pakeage: api
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/HEAD/configuration-schema.json
+# `oapi-codegen --config=api/config.yaml ./api/openapi.yaml`
+package: api
 generate:
+  strict-server: true
   chi-server: true
   models: true
   embedded-spec: true
-compatibility:
-  apply-chi-middleware-first-to-last: true
-output: server.gen.go
+additional-imports:
+  - package: github.com/google/uuid
+    alias: uuid
+
+output: ./api/server.gen.go

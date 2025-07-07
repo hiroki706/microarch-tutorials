@@ -25,5 +25,5 @@ description = "バックエンド、フロントエンドのテストをすべ�
 depends = "test:*"
 [tasks."test:backend"]
 run = [
-    "docker compose run --rm --build backend-apigate go test ./...",
+    "docker compose run --rm backend-apigate go test ./...",
 ]

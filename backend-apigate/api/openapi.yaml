@@ -42,6 +42,10 @@ components:
       properties:
         id:
           type: string
+          x-go-type: googleuuid.UUID
+          x-go-type-import:
+            path: github.com/google/uuid
+            name: googleuuid
           format: uuid
           example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
         title:
