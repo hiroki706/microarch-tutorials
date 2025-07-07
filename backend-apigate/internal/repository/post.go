@@ -23,10 +23,10 @@ type inMemoryPostRepository struct {
 }
 
 // NewInMemoryPostRepository は新しい inMemoryPostRepository を返す
-func NewInMemoryPostRepository() PostRepository {
+func NewInMemoryPostRepository() (PostRepository, error) {
 	return &inMemoryPostRepository{
 		posts: make(map[uuid.UUID]api.Post),
-	}
+	}, nil
 }
 
 func (r *inMemoryPostRepository) FindAll() ([]api.Post, error) {
