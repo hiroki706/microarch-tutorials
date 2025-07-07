@@ -1,0 +1,28 @@
+[tools]
+node = "latest"
+pnpm = "latest"
+uv = "latest"
+
+[tasks.run]
+description = "バックエンド、フロントエンドのアプリケーションを起動します"
+depends = "run:*"
+[tasks."run:backend"]
+description = "バックエンドのアプリケーションを起動します"
+run = [
+    "go mod tidy",
+    "docker compose up backend-apigate --build --watch"
+]
+[tasks."run:frontend"]
+description = "フロントエンドのアプリケーションを起動します"
+run = [
+    "docker compose up --build"
+]
+dir = "frontend"
+
+[tasks.test]
+description = "バックエンド、フロントエンドのテストをすべて実行します"
+depends = "test:*"
+[tasks."test:backend"]
+run = [
+    "docker compose run --rm --build backend-apigate go test ./...",
+]
