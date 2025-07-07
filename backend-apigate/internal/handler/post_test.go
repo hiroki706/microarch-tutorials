@@ -2,6 +2,8 @@ package handler_test // テスト対象と別パッケージにすることで�
 
 import (
 	"bytes"
+	"context"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,10 +13,25 @@ import (
 	"github.com/hiroki706/microarch-tutorials/backend-apigate/internal/handler"
 	"github.com/hiroki706/microarch-tutorials/backend-apigate/internal/repository"
 	"github.com/hiroki706/microarch-tutorials/backend-apigate/internal/usecase"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	_ "github.com/lib/pq" // PostgreSQLドライバをインポート
 )
 
 func setupTestRouter() http.Handler {
-	postRepo := repository.NewInMemoryPostRepository()
+	dbURL := "postgres://app_user:password@localhost:5432/app_db?sslmode=disable"
+	if dbURL == "" {
+		log.Fatal("Database URL is not set")
+	}
+	pool, err := pgxpool.New(context.Background(), dbURL)
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v", err)
+	}
+
+	postRepo, err := repository.NewPostgresPostRepository(pool)
+	if err != nil {
+		log.Fatalf("Failed to create PostgresPostRepository: %v", err)
+	}
 	postUsecase := usecase.NewPostUsecase(postRepo)
 	postHandler := handler.NewPostHandler(postUsecase)
 
