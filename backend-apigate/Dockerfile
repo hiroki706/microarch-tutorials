@@ -6,7 +6,7 @@ RUN go install github.com/air-verse/air@latest
 
 # キャッシュを利用して依存関係をダウンロード
 COPY go.* ./
-RUN RUN --mount=type=cache,target=/go/pkg/mod go mod download
+RUN go mod download -x
 
 COPY . .
 
@@ -15,7 +15,7 @@ CMD ["air", "-c", ".air.toml"]
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 COPY go.* ./
-RUN RUN --mount=type=cache,target=/go/pkg/mod go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
