@@ -7,6 +7,8 @@ services:
     ports:
       - "8080:8080"
     tty: true
+    # bindマウントの代わりに、composeのwatch機能を使用して、開発中のコード変更を自動的に反映させます。
+    # bindマウントは、docker側のファイルがホストマシンのファイルを上書きしてしまうバグ(仕様)があるため、使用しないことを推奨します。
     develop:
       watch:
         - action: sync

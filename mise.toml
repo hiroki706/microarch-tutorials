@@ -12,6 +12,7 @@ run = [
     "go mod tidy",
     "docker compose up backend-apigate --build --watch"
 ]
+dir = "backend-apigate"
 [tasks."run:frontend"]
 description = "フロントエンドのアプリケーションを起動します"
 run = [
