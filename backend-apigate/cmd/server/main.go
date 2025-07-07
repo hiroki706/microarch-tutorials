@@ -28,9 +28,13 @@ func NewServer() *Server {
 }
 
 func (s *Server) GetPosts(w http.ResponseWriter, r *http.Request) {
-	// TODO: 次で実装
-	w.WriteHeader(http.StatusNotImplemented)
-	w.Write([]byte("GetPost not implemented"))
+	posts := make([]api.Post, 0, len(s.posts))
+	for _, post := range s.posts {
+		posts = append(posts, post)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
 }
 
 // CreatePostは新しい投稿を作成するハンドラです。
