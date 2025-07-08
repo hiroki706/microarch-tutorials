@@ -5,6 +5,53 @@ info:
 servers:
   - url: http://localhost:8080/v1
 paths:
+  /users/register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '204':
+          description: User registered successfully
+  /users/login:
+    post:
+      summary: Log in a user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+  /token/refresh:
+    post:
+      summary: Refresh access token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
   /posts:
     get:
       summary: Get all posts
@@ -21,6 +68,9 @@ paths:
     post:
       summary: Create a new post
       operationId: createPost
+      # JWT認証を必要とするエンドポイント
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -37,23 +87,72 @@ paths:
 
 components:
   schemas:
+    UserRegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: 'newuser'
+        password:
+          type: string
+          format: password
+          example: 'strongpassword123'
+    UserLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: 'newuser'
+        password:
+          type: string
+          format: password
+          example: 'strongpassword123'
+    TokenPair:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
     Post:
       type: object
       properties:
         id:
           type: string
+          format: uuid
+          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
           x-go-type: googleuuid.UUID
           x-go-type-import:
             path: github.com/google/uuid
             name: googleuuid
-          format: uuid
-          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
         title:
           type: string
           example: 'My First Post'
         content:
           type: string
           example: 'This is the content of the post.'
+        # 投稿にユーザーIDを追加
+        user_id:
+          type: string
+          format: uuid
+          x-go-type: googleuuid.UUID
+          x-go-type-import:
+            path: github.com/google/uuid
+            name: googleuuid
+          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
         created_at:
           type: string
           format: date-time
@@ -77,3 +176,9 @@ components:
       properties:
         message:
           type: string
+  # JWT認証のセキュリティスキームを定義
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

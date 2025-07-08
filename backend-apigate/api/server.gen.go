@@ -22,6 +22,10 @@ import (
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 )
 
+const (
+	BearerAuthScopes = "BearerAuth.Scopes"
+)
+
 // NewPost defines model for NewPost.
 type NewPost struct {
 	Content string `json:"content"`
@@ -34,10 +38,43 @@ type Post struct {
 	CreatedAt *time.Time       `json:"created_at,omitempty"`
 	Id        *googleuuid.UUID `json:"id,omitempty"`
 	Title     *string          `json:"title,omitempty"`
+	UserId    *googleuuid.UUID `json:"user_id,omitempty"`
+}
+
+// RefreshTokenRequest defines model for RefreshTokenRequest.
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+// TokenPair defines model for TokenPair.
+type TokenPair struct {
+	AccessToken  *string `json:"access_token,omitempty"`
+	RefreshToken *string `json:"refresh_token,omitempty"`
+}
+
+// UserLoginRequest defines model for UserLoginRequest.
+type UserLoginRequest struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// UserRegisterRequest defines model for UserRegisterRequest.
+type UserRegisterRequest struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
 }
 
 // CreatePostJSONRequestBody defines body for CreatePost for application/json ContentType.
 type CreatePostJSONRequestBody = NewPost
+
+// RefreshTokenJSONRequestBody defines body for RefreshToken for application/json ContentType.
+type RefreshTokenJSONRequestBody = RefreshTokenRequest
+
+// LoginUserJSONRequestBody defines body for LoginUser for application/json ContentType.
+type LoginUserJSONRequestBody = UserLoginRequest
+
+// RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
+type RegisterUserJSONRequestBody = UserRegisterRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -47,6 +84,15 @@ type ServerInterface interface {
 	// Create a new post
 	// (POST /posts)
 	CreatePost(w http.ResponseWriter, r *http.Request)
+	// Refresh access token
+	// (POST /token/refresh)
+	RefreshToken(w http.ResponseWriter, r *http.Request)
+	// Log in a user
+	// (POST /users/login)
+	LoginUser(w http.ResponseWriter, r *http.Request)
+	// Register a new user
+	// (POST /users/register)
+	RegisterUser(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -62,6 +108,24 @@ func (_ Unimplemented) GetPosts(w http.ResponseWriter, r *http.Request) {
 // Create a new post
 // (POST /posts)
 func (_ Unimplemented) CreatePost(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Refresh access token
+// (POST /token/refresh)
+func (_ Unimplemented) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Log in a user
+// (POST /users/login)
+func (_ Unimplemented) LoginUser(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Register a new user
+// (POST /users/register)
+func (_ Unimplemented) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -91,8 +155,56 @@ func (siw *ServerInterfaceWrapper) GetPosts(w http.ResponseWriter, r *http.Reque
 // CreatePost operation middleware
 func (siw *ServerInterfaceWrapper) CreatePost(w http.ResponseWriter, r *http.Request) {
 
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreatePost(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RefreshToken operation middleware
+func (siw *ServerInterfaceWrapper) RefreshToken(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RefreshToken(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// LoginUser operation middleware
+func (siw *ServerInterfaceWrapper) LoginUser(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.LoginUser(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RegisterUser operation middleware
+func (siw *ServerInterfaceWrapper) RegisterUser(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RegisterUser(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -221,6 +333,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/posts", wrapper.CreatePost)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/token/refresh", wrapper.RefreshToken)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/users/login", wrapper.LoginUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/users/register", wrapper.RegisterUser)
+	})
 
 	return r
 }
@@ -258,6 +379,56 @@ func (response CreatePost201JSONResponse) VisitCreatePostResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
+type RefreshTokenRequestObject struct {
+	Body *RefreshTokenJSONRequestBody
+}
+
+type RefreshTokenResponseObject interface {
+	VisitRefreshTokenResponse(w http.ResponseWriter) error
+}
+
+type RefreshToken200JSONResponse TokenPair
+
+func (response RefreshToken200JSONResponse) VisitRefreshTokenResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type LoginUserRequestObject struct {
+	Body *LoginUserJSONRequestBody
+}
+
+type LoginUserResponseObject interface {
+	VisitLoginUserResponse(w http.ResponseWriter) error
+}
+
+type LoginUser200JSONResponse TokenPair
+
+func (response LoginUser200JSONResponse) VisitLoginUserResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RegisterUserRequestObject struct {
+	Body *RegisterUserJSONRequestBody
+}
+
+type RegisterUserResponseObject interface {
+	VisitRegisterUserResponse(w http.ResponseWriter) error
+}
+
+type RegisterUser204Response struct {
+}
+
+func (response RegisterUser204Response) VisitRegisterUserResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Get all posts
@@ -266,6 +437,15 @@ type StrictServerInterface interface {
 	// Create a new post
 	// (POST /posts)
 	CreatePost(ctx context.Context, request CreatePostRequestObject) (CreatePostResponseObject, error)
+	// Refresh access token
+	// (POST /token/refresh)
+	RefreshToken(ctx context.Context, request RefreshTokenRequestObject) (RefreshTokenResponseObject, error)
+	// Log in a user
+	// (POST /users/login)
+	LoginUser(ctx context.Context, request LoginUserRequestObject) (LoginUserResponseObject, error)
+	// Register a new user
+	// (POST /users/register)
+	RegisterUser(ctx context.Context, request RegisterUserRequestObject) (RegisterUserResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -352,19 +532,117 @@ func (sh *strictHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// RefreshToken operation middleware
+func (sh *strictHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var request RefreshTokenRequestObject
+
+	var body RefreshTokenJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RefreshToken(ctx, request.(RefreshTokenRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RefreshToken")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RefreshTokenResponseObject); ok {
+		if err := validResponse.VisitRefreshTokenResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// LoginUser operation middleware
+func (sh *strictHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var request LoginUserRequestObject
+
+	var body LoginUserJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.LoginUser(ctx, request.(LoginUserRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "LoginUser")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(LoginUserResponseObject); ok {
+		if err := validResponse.VisitLoginUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RegisterUser operation middleware
+func (sh *strictHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	var request RegisterUserRequestObject
+
+	var body RegisterUserJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RegisterUser(ctx, request.(RegisterUserRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RegisterUser")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RegisterUserResponseObject); ok {
+		if err := validResponse.VisitRegisterUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
