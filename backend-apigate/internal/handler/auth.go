@@ -41,5 +41,19 @@ func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
+	var req api.RefreshTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	tokenPair, err := s.authUC.RefreshToken(r.Context(), req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK) // 200 OK
+	json.NewEncoder(w).Encode(tokenPair)
 }

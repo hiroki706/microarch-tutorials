@@ -17,7 +17,12 @@ import (
 type AuthUsecase interface {
 	RegisterUser(ctx context.Context, req api.UserRegisterRequest) error
 	LoginUser(ctx context.Context, req api.UserLoginRequest) (*api.TokenPair, error)
-	RefreshToken(ctx context.Context, refreshToken string) (*api.TokenPair, error)
+	RefreshToken(ctx context.Context, req api.RefreshTokenRequest) (*api.TokenPair, error)
+}
+
+// TokenValidator はトークンの検証を行うインターフェースです。
+type TokenValidator interface {
+	Validate(tokenstr string) (uuid.UUID, error)
 }
 
 type authUsecase struct {
@@ -96,22 +101,8 @@ func (u authUsecase) LoginUser(ctx context.Context, req api.UserLoginRequest) (*
 }
 
 // RefreshToken はリフレッシュトークンを使用して新しいアクセストークンとリフレッシュトークンを生成します。
-func (u authUsecase) RefreshToken(ctx context.Context, refreshToken string) (*api.TokenPair, error) {
-	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) { return u.jwtSecret, nil })
-	if err != nil || !token.Valid {
-		return nil, errors.New("invalid refresh token")
-	}
-
-	// トークンのクレームからユーザーIDを取得
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("invalid token claims")
-	}
-	userIDStr, ok := claims["sub"].(string)
-	if !ok {
-		return nil, errors.New("invalid token claims")
-	}
-	userID, err := uuid.Parse(userIDStr)
+func (u authUsecase) RefreshToken(ctx context.Context, req api.RefreshTokenRequest) (*api.TokenPair, error) {
+	userID, err := u.Validate(req.RefreshToken)
 	if err != nil {
 		return nil, errors.New("invalid user ID in token")
 	}
@@ -127,8 +118,28 @@ func (u authUsecase) RefreshToken(ctx context.Context, refreshToken string) (*ap
 	}
 	return &api.TokenPair{
 		AccessToken:  &accessToken,
-		RefreshToken: &refreshToken, // リフレッシュトークンはそのまま返す
+		RefreshToken: &req.RefreshToken, // リフレッシュトークンはそのまま返す
 	}, nil
+}
+
+func (u *authUsecase) Validate(tokenstr string) (uuid.UUID, error) {
+	token, err := jwt.Parse(tokenstr, func(token *jwt.Token) (interface{}, error) { return u.jwtSecret, nil })
+	if err != nil || !token.Valid {
+		return uuid.Nil, errors.New("invalid token")
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return uuid.Nil, errors.New("invalid token claims")
+	}
+	userIDStr, ok := claims["sub"].(string)
+	if !ok {
+		return uuid.Nil, errors.New("invalid user ID in token")
+	}
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return uuid.Nil, errors.New("invalid user ID format in token")
+	}
+	return userID, nil
 }
 
 // generateToken はJWTトークンを生成するヘルパー関数

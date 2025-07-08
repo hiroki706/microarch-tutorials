@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/hiroki706/microarch-tutorials/backend-apigate/internal/usecase"
 )
 
 // コンテキストにユーザー情報を格納するためのキー
@@ -13,7 +13,7 @@ type userContextKey string
 
 const UserIDKey userContextKey = "userID"
 
-func Authenticator(jwtSecret []byte) func(http.Handler) http.Handler {
+func Authenticator(validator usecase.TokenValidator) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Authorizationヘッダーからトークンを取得
@@ -29,21 +29,9 @@ func Authenticator(jwtSecret []byte) func(http.Handler) http.Handler {
 			}
 
 			// JWTトークンを検証
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) { return jwtSecret, nil })
-			if err != nil || !token.Valid {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
-				return
-			}
-
-			// ユーザーIDをコンテキストに格納
-			claims, ok := token.Claims.(jwt.MapClaims)
-			if !ok {
-				http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-				return
-			}
-			userID, ok := claims["sub"].(string)
-			if !ok {
-				http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+			userID, err := validator.Validate(tokenString)
+			if err != nil {
+				http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
 				return
 			}
 

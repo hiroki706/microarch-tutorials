@@ -53,7 +53,7 @@ func main() {
 	// 認証が必要なルート
 	r.Group(func(r chi.Router) {
 		// ミドルウェアを適用
-		r.Use(handler.Authenticator([]byte(jwtSecret)))
+		r.Use(handler.Authenticator(&authUsecase))
 
 		r.Post("/v1/posts", serverHandler.CreatePost)
 	})
