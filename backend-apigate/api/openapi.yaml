@@ -91,11 +91,17 @@ components:
       type: object
       required:
         - username
+        - email
         - password
       properties:
         username:
           type: string
           example: 'newuser'
+        email:
+          type: string
+          format: email
+          example: 'admin@example.com'
+          x-go-type: string
         password:
           type: string
           format: password
@@ -103,12 +109,14 @@ components:
     UserLoginRequest:
       type: object
       required:
-        - username
+        - email
         - password
       properties:
-        username:
+        email:
           type: string
-          example: 'newuser'
+          format: email
+          example: 'admin@example.com'
+          x-go-type: string
         password:
           type: string
           format: password

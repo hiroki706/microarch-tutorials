@@ -5,22 +5,10 @@ import (
 	"net/http"
 
 	"github.com/hiroki706/microarch-tutorials/backend-apigate/api"
-	"github.com/hiroki706/microarch-tutorials/backend-apigate/internal/usecase"
 )
 
-// oapi-codegenで生成された ServerInterface を実装する
-type PostHandler struct {
-	uc usecase.PostUsecase
-}
-
-func NewPostHandler(uc usecase.PostUsecase) api.ServerInterface {
-	return &PostHandler{
-		uc: uc,
-	}
-}
-
-func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.uc.GetAllPosts(r.Context())
+func (h *Server) GetPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := h.postUC.GetAllPosts(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -31,14 +19,14 @@ func (h *PostHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
-func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+func (h *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var newPost api.NewPost
 	if err := json.NewDecoder(r.Body).Decode(&newPost); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	post, err := h.uc.CreatePost(r.Context(), newPost)
+	post, err := h.postUC.CreatePost(r.Context(), newPost)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

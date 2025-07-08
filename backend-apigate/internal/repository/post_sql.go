@@ -15,11 +15,11 @@ type postgresPostRepository struct {
 	q  *sqlc.Queries
 }
 
-func NewPostgresPostRepository(db *pgxpool.Pool) (PostRepository, error) {
+func NewPostgresPostRepository(db *pgxpool.Pool) PostRepository {
 	return &postgresPostRepository{
 		db: db,
 		q:  sqlc.New(db),
-	}, nil
+	}
 }
 
 func (r *postgresPostRepository) FindAll() ([]api.Post, error) {
