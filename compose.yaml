@@ -12,8 +12,6 @@ services:
       - DATABASE_URL=postgres://app_user:password@db:5432/app_db?sslmode=disable
     depends_on:
       - db
-    # bindマウントの代わりに、composeのwatch機能を使用して、開発中のコード変更を自動的に反映させます。
-    # bindマウントは、docker側のファイルがホストマシンのファイルを上書きしてしまうバグ(仕様)があるため、使用しないことを推奨します。
     develop:
       watch:
         - action: sync
@@ -31,6 +29,26 @@ services:
       - POSTGRES_DB=app_db
     volumes:
       - postgres-data:/var/lib/postgresql/data
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: builder
+    command: ["pnpm", "dev"]
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules
+            - .git
+            - .vscode
+        - action: rebuild
+          path: ./package.json
 
 volumes:
+  pnpm-store:
   postgres-data:

@@ -1,11 +1,12 @@
 [tools]
+bun = "latest"
 node = "latest"
 pnpm = "latest"
 uv = "latest"
 
 [tasks.run]
 description = "バックエンド、フロントエンドのアプリケーションを起動します"
-depends = "run:*"
+# depends = "run:*"
 [tasks."run:backend"]
 description = "バックエンドのアプリケーションを起動します"
 run = [
