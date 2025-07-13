@@ -28,3 +28,7 @@ depends = "test:*"
 run = [
     "docker compose run --rm backend-apigate go test ./...",
 ]
+[tasks."test:frontend"]
+run = [
+    "docker compose run --rm --build frontend pnpm run test"
+]
