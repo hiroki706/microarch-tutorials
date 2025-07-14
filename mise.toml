@@ -30,5 +30,5 @@ run = [
 ]
 [tasks."test:frontend"]
 run = [
-    "docker compose run --rm --build frontend pnpm run test"
+    "docker compose run --rm --build frontend pnpm test"
 ]

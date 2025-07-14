@@ -33,6 +33,6 @@ const handlers = [
         };
         posts.push(newPost);
         return response(201).json(newPost);
-    })
+    }),
 ]
 export { handlers };
