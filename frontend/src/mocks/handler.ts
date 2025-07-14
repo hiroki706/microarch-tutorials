@@ -1,5 +1,5 @@
 import { delay } from 'msw';
-import { createOpenApiHttp, RequestBodyFor, ResponseBodyFor } from "openapi-msw";
+import { createOpenApiHttp, ResponseBodyFor } from "openapi-msw";
 import type { paths } from '@/lib/api/schemas';
 
 const http = createOpenApiHttp<paths>();
@@ -16,7 +16,7 @@ const posts: PostResponse = [
 ];
 
 const handlers = [
-    http.get("/posts", async ({ response, params }) => {
+    http.get("/posts", async ({ response }) => {
         await delay(200); // ネットワーク遅延
         return response(200).json(posts)
     }),

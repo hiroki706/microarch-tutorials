@@ -13,6 +13,6 @@ const eslintConfig = [...compat.config({
     "next/core-web-vitals",
     "next/typescript",
   ],
-}), ...storybook.configs["flat/recommended"]];
+}), ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"]];
 
 export default eslintConfig;
