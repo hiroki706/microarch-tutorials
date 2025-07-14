@@ -8,12 +8,8 @@ COPY pnpm-lock.yaml ./
 RUN pnpm fetch
 
 # 2. build: アプリケーションをビルド
-FROM node:24-alpine AS builder
+FROM deps AS builder
 WORKDIR /app
-RUN npm install -g pnpm
-COPY --from=deps /root/.local/share/pnpm/store/v10 /root/.local/share/pnpm/store/v10
-COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=deps /app/node_modules ./node_modules
 
 COPY . .
 
@@ -21,10 +17,11 @@ RUN pnpm install --offline --frozen-lockfile
 CMD [ "pnpm", "build" ]
 
 # 3. runner: 最小イメージでアプリケーションを実行
-FROM gcr.io/distroless/node24:nonroot
+FROM gcr.io/distroless/node24:nonroot AS prod
 ENV NODE_ENV production
 WORKDIR /app
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nonroot:nonroot /app/.next/standalone ./
+COPY --from=builder --chown=nonroot:nonroot /app/public ./public
+COPY --from=builder --chown=nonroot:nonroot /app/.next/static ./.next/static
 EXPOSE 3000
 CMD [ "server.js" ]
