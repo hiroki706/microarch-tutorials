@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:api": "openapi-typescript-codegen --input ./openapi.yaml --output ./src/lib/api --client axios",
+    "gen:api": "openapi-typescript ../backend-apigate/api/openapi.old.yaml --output ./src/lib/api/schemas.gen.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "storybook": "storybook dev -p 6006",
@@ -15,13 +15,17 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "@t3-oss/env-nextjs": "^0.13.8",
+    "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
+    "openapi-fetch": "^0.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.0.1",
@@ -29,6 +33,7 @@
     "@storybook/addon-a11y": "^9.0.16",
     "@storybook/addon-docs": "^9.0.16",
     "@storybook/addon-vitest": "^9.0.16",
+    "@storybook/nextjs-vite": "^9.0.16",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -43,10 +48,12 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "eslint-plugin-storybook": "^9.0.16",
+    "happy-dom": "^18.0.1",
     "jsdom": "^26.1.0",
     "msw": "^2.10.4",
     "openapi-msw": "^1.2.0",
     "openapi-typescript": "^7.8.0",
+    "playwright": "^1.54.1",
     "pnpm": "^10.13.1",
     "postcss": "^8.5.6",
     "storybook": "^9.0.16",
@@ -55,9 +62,7 @@
     "typescript": "^5",
     "vite": "^7.0.4",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4",
-    "@storybook/nextjs-vite": "^9.0.16",
-    "playwright": "^1.54.1"
+    "vitest": "^3.2.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

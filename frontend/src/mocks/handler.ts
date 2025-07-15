@@ -1,8 +1,10 @@
 import { delay } from 'msw';
 import { createOpenApiHttp, ResponseBodyFor } from "openapi-msw";
-import type { paths } from '@/lib/api/schemas';
+import type { paths } from '@/lib/api/schemas.gen';
+import { env } from '@/env/client';
 
-const http = createOpenApiHttp<paths>();
+const http = createOpenApiHttp<paths>({
+    baseUrl: env.NEXT_PUBLIC_BACKEND_BASE_URL});
 
 type PostResponse = ResponseBodyFor<typeof http.get, "/posts">;
 
@@ -17,12 +19,11 @@ const posts: PostResponse = [
 
 const handlers = [
     http.get("/posts", async ({ response }) => {
-        await delay(200); // ネットワーク遅延
         return response(200).json(posts)
     }),
 
     http.post(`/posts`, async ({ request, response }) => {
-        await delay(200); // ネットワーク遅延
+        await delay(60); // ネットワーク遅延
         const newPostData = await request.json()
 
         const newPost = {
@@ -35,4 +36,4 @@ const handlers = [
         return response(201).json(newPost);
     }),
 ]
-export { handlers };
+export { handlers, http };

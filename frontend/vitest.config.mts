@@ -13,9 +13,6 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: "./vitest.setup.ts",
     projects: [
       {
         extends: true,
@@ -39,7 +36,6 @@ export default defineConfig({
         },
       },
       {
-        extends: true,
         test: {
           name: 'unit',
           environment: 'jsdom',
@@ -47,12 +43,18 @@ export default defineConfig({
           setupFiles: ['./vitest.setup.ts'],
           include: ['src/**/*.test.tsx', 'src/**/*.test.ts'],
           exclude: ['src/**/*.stories.tsx', 'src/**/*.stories.ts'],
+        },
+        plugins: [tsconfigPaths(), react()],
+        resolve: {
+          alias: {
+            '@': path.resolve(dirname, './src'),
+          },
         }
       }],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
-    }
+    },
   }
 });

@@ -18,6 +18,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Create a new post
       operationId: createPost

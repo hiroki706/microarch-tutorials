@@ -78,6 +78,15 @@ export interface operations {
                     "application/json": components["schemas"]["Post"][];
                 };
             };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     createPost: {
