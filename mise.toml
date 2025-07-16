@@ -17,7 +17,7 @@ dir = "backend-apigate"
 [tasks."run:frontend"]
 description = "フロントエンドのアプリケーションを起動します"
 run = [
-    "docker compose up --build"
+    "docker compose up frontend --build --watch"
 ]
 dir = "frontend"
 
@@ -30,5 +30,5 @@ run = [
 ]
 [tasks."test:frontend"]
 run = [
-    "docker compose run --rm --build frontend pnpm test"
+    "docker compose run --rm --build frontend pnpm test --run --project unit"
 ]

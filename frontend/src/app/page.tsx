@@ -1,20 +1,27 @@
-'use client'
+"use client";
 
-import { client } from "@/lib/api/services";
 import { useQuery } from "@tanstack/react-query";
+import { client } from "@/lib/api/services";
 
 export default function Home() {
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ["posts"], // キャッシュ識別情報
     queryFn: () => client.GET("/posts"), // API呼び出し
+    queryKey: ["posts"], // キャッシュ識別情報
   });
   if (isLoading) return <div>Loading...</div>;
-  if (data && data.error) return (
-    <>
-    <div>エラーが発生しました</div>
-    {data.error.message};</>)
-  if (error) return <div>エラーが発生しました{error.message},{error.stack},{String(error.cause)}</div>;
+  if (data?.error)
+    return (
+      <>
+        <div>エラーが発生しました</div>
+        {data.error.message}
+      </>
+    );
+  if (error)
+    return (
+      <div>
+        エラーが発生しました{error.message},{error.stack},{String(error.cause)}
+      </div>
+    );
   const posts = data?.data || [];
 
   return (
@@ -25,7 +32,7 @@ export default function Home() {
           <li key={post.id}>
             <h2>{post.title}</h2>
             <p>{post.content}</p>
-            <small>投稿日: {new Date(post.created_at!).toLocaleDateString()}</small>
+            <small>投稿日: {post.created_at}</small>
           </li>
         ))}
       </ul>

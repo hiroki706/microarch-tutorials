@@ -3,7 +3,6 @@ FROM node:24-alpine AS deps
 WORKDIR /app
 
 RUN npm install -g pnpm
-
 COPY pnpm-lock.yaml ./
 RUN pnpm fetch
 
@@ -21,7 +20,6 @@ FROM gcr.io/distroless/node24:nonroot AS prod
 ENV NODE_ENV production
 WORKDIR /app
 COPY --from=builder --chown=nonroot:nonroot /app/.next/standalone ./
-COPY --from=builder --chown=nonroot:nonroot /app/public ./public
 COPY --from=builder --chown=nonroot:nonroot /app/.next/static ./.next/static
 EXPOSE 3000
 CMD [ "server.js" ]
