@@ -21,8 +21,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <MSWComponent />
-        <QueryProvider>{children}</QueryProvider>
+        <MSWComponent>
+          <QueryProvider>{children}</QueryProvider>
+        </MSWComponent>
       </body>
     </html>
   );

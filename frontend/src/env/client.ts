@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   client: {
-    NEXT_PUBLIC_BACKEND_BASE_URL: z.url(),
+    NEXT_PUBLIC_BACKEND_BASE_URL: z.url().default(""),
   },
   runtimeEnv: {
     NEXT_PUBLIC_BACKEND_BASE_URL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL,

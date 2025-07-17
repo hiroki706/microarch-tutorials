@@ -7,6 +7,7 @@ export const client = createClient<paths>({
   // [原因不明]この設定がないと、test環境でMSWが動作しない
   // サーバーではfetchが独自定義されているから？
   fetch: (input) => fetch(input),
+  mode: "cors",
 });
 
 export type Post = components["schemas"]["Post"];

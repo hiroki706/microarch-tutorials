@@ -1,17 +1,19 @@
-import '@testing-library/jest-dom/vitest';
+import "@testing-library/jest-dom/vitest";
 
-import { afterAll, afterEach, beforeAll } from 'vitest';
-import { server } from './src/mocks/server';
+import { cleanup } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "./src/mocks/server";
 
 // MSWのサーバーをセットアップ
 beforeAll(() => {
-    server.listen({onUnhandledRequest: 'error'});
+	server.listen({ onUnhandledRequest: "error" });
 });
 // 各テスト後にサーバーの状態をリセット
 afterEach(() => {
-    server.resetHandlers();
+	server.resetHandlers();
+	cleanup();
 });
 // 全てのテスト後にサーバーをクリーンアップ
 afterAll(() => {
-    server.close();
+	server.close();
 });

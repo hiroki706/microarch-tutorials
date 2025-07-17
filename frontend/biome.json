@@ -34,6 +34,12 @@
 			"semicolons":"always"
 		}
 	},
+	"json": {
+		"formatter": {
+			"enabled": true,
+			"trailingCommas": "all"
+		}
+	},
 	"assist": {
 		"enabled": true,
 		"actions": {
