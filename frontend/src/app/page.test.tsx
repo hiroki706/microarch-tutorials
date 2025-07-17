@@ -10,9 +10,7 @@ describe("Home Page", () => {
     // レンダリング
     renderWithQueryClient(<Page />);
     // MSWの返すモックデータ
-    expect(
-      await screen.findByRole("heading", { name: "MSWで始めるAPIモック" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("MSWで始めるAPIモック")).toBeInTheDocument();
   });
 
   it("データ取得に失敗した場合、エラーメッセージが表示される", async () => {

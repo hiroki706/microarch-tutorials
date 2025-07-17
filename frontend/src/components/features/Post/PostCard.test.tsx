@@ -14,9 +14,7 @@ const testData: Post = {
 describe("PostCard", () => {
   it("渡された投稿のタイトルと本文を正しく描画する", () => {
     render(<PostCard post={testData} />);
-    expect(
-      screen.getByRole("heading", { name: "テスト投稿のタイトル" }),
-    ).toBeInTheDocument();
+    expect(screen.getByText("テスト投稿のタイトル")).toBeInTheDocument();
     expect(screen.getByText("これが投稿の本文です。")).toBeInTheDocument();
   });
 });

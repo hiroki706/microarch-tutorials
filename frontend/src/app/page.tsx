@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { PostCard } from "@/components/features/Post/PostCard";
 import { client } from "@/lib/api/services";
 
 export default function Home() {
@@ -25,17 +26,13 @@ export default function Home() {
   const posts = data?.data || [];
 
   return (
-    <main>
-      <h1>投稿一覧</h1>
-      <ul>
+    <main className="container mx-auto p-4">
+      <h1 className="mb-6 border-b pb-2 text-3xl font-bold">投稿一覧</h1>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {posts?.map((post) => (
-          <li key={post.id}>
-            <h2>{post.title}</h2>
-            <p>{post.content}</p>
-            <small>投稿日: {post.created_at}</small>
-          </li>
+          <PostCard key={post.id} post={post} />
         ))}
-      </ul>
+      </div>
     </main>
   );
 }
