@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { Post } from "@/lib/api/services";
+import type { Schemas } from "@/lib/api/services";
 
 import { PostCard } from "./PostCard";
 
-const testData: Post = {
+const testData: Schemas["Post"] = {
   content: "これが投稿の本文です。",
   created_at: "2025-07-17T10:00:00Z",
   id: "test-id-1",
