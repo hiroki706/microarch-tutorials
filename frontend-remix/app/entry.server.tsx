@@ -1,18 +1,17 @@
 import { PassThrough } from "node:stream";
-
-import type { AppLoadContext, EntryContext } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
+import type { AppLoadContext, EntryContext } from "react-router";
+import { ServerRouter } from "react-router";
 import { server } from "./mocks/server";
 
 export const streamTimeout = 5_000;
 
 if (process.env.NODE_ENV !== "production") {
   console.log("Starting MSW server...");
-  server.listen({onUnhandledRequest: "warn"});
+  server.listen({ onUnhandledRequest: "warn" });
 }
 
 export default function handleRequest(
@@ -20,17 +19,17 @@ export default function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  loadContext: AppLoadContext
+  _loadContext: AppLoadContext,
   // If you have middleware enabled:
   // loadContext: unstable_RouterContextProvider
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
-    let userAgent = request.headers.get("user-agent");
+    const userAgent = request.headers.get("user-agent");
 
     // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
     // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
-    let readyOption: keyof RenderToPipeableStreamOptions =
+    const readyOption: keyof RenderToPipeableStreamOptions =
       (userAgent && isbot(userAgent)) || routerContext.isSpaMode
         ? "onAllReady"
         : "onShellReady";
@@ -49,7 +48,7 @@ export default function handleRequest(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           );
 
           pipe(body);
@@ -66,7 +65,7 @@ export default function handleRequest(
             console.error(error);
           }
         },
-      }
+      },
     );
 
     // Abort the rendering stream after the `streamTimeout` so it has time to

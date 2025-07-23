@@ -7,7 +7,10 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "gen:api": "openapi-typescript ../backend-apigate/api/openapi.old.yaml --output ./app/lib/api/schemas.d.ts"
+    "gen:api": "openapi-typescript ../backend-apigate/api/openapi.old.yaml --output ./app/lib/api/schemas.d.ts",
+    "lint": "biome lint ./app",
+    "check": "biome check ./app",
+    "test": "vitest"
   },
   "dependencies": {
     "@react-router/node": "^7.7.0",
@@ -19,18 +22,24 @@
     "react-router": "^7.7.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.1.2",
     "@react-router/dev": "^7.7.0",
     "@tailwindcss/vite": "^4.1.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "jsdom": "^26.1.0",
     "msw": "^2.10.4",
     "openapi-msw": "^1.2.0",
     "openapi-typescript": "^7.8.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   },
   "msw": {
     "workerDirectory": [

@@ -1,7 +1,7 @@
 import { client } from "~/lib/api/servise";
 import type { Route } from "./+types/home";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "New React Router App" },
     { name: "description", content: "Welcome to React Router!" },
@@ -9,7 +9,7 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 // loaderはサーバーサイドで実行される
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   console.log("loader: APIから投稿データを取得します");
 
   // MSWがこのfetchをインターセプトする！
@@ -31,5 +31,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </li>
         ))}
       </ul>
-    </div>);
+    </div>
+  );
 }
