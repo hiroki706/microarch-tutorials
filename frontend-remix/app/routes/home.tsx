@@ -1,5 +1,7 @@
+import { Link } from "react-router";
 import { client } from "~/lib/api/servise";
 import type { Route } from "./+types/home";
+import { Card, CardContent, CardFooter, CardTitle } from "~/components/ui/card";
 
 export function meta() {
   return [
@@ -21,16 +23,20 @@ export async function loader() {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const posts = loaderData;
   return (
-    <div>
+    <div className="max-w-2xl mx-auto p-4">
       <h1>投稿一覧</h1>
       <ul>
         {posts.map((post) => (
-          <li key={post.id}>
-            <strong>{post.title}</strong>
-            <p>{post.content}</p>
-          </li>
+          <Card className="mb-4 p-4" key={post.id}>
+            <CardTitle><h2>{post.title}</h2></CardTitle>
+            <CardContent><p>{post.content}</p></CardContent>
+            <CardFooter><small>作成:{post.created_at}</small></CardFooter>
+          </Card>
         ))}
       </ul>
+      <Link to="/login" className="text-blue-500 hover:underline">
+        form
+      </Link>
     </div>
   );
 }
