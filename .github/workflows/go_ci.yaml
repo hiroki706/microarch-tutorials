@@ -10,6 +10,7 @@ on:
     paths:
       - "backend-apigate/**"
       - ".github/workflows/go_ci.yaml"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,9 +27,7 @@ jobs:
           go-version: '1.24'
       - name: Install dependencies
         run: |
-          cd backend
           go mod download
       - name: Run tests
         run: |
-          cd backend
           go test ./...
