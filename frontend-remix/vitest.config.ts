@@ -8,11 +8,7 @@ export default defineConfig(async (configEnv: ConfigEnv) => {
     baseConfig,
     defineConfig({
       test: {
-        browser: {
-          provider: "playwright",
-          enabled: true,
-          name: "playwright",
-        },
+        environment: "jsdom",
         setupFiles: ["./vitest.setup.ts"],
         globals: true,
         include: ["./app/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
