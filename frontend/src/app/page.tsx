@@ -26,7 +26,11 @@ export default function Home() {
       </div>
     );
   if (data?.error) {
-    return <><div>エラーが発生しました</div>: {data.error.message}</>;
+    return (
+      <>
+        <div>エラーが発生しました</div>: {data.error.message}
+      </>
+    );
   }
   const posts = data?.data || [];
 

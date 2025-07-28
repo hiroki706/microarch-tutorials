@@ -18,11 +18,17 @@ const posts: PostResponse = [
   },
 ];
 
-const UserData: {username: string|undefined, email:string, password:string}[] = [{
-  username: "testuser",
-  email: "test@example.com",
-  password: "password123",
-}];
+const UserData: {
+  username: string | undefined;
+  email: string;
+  password: string;
+}[] = [
+  {
+    email: "test@example.com",
+    password: "password123",
+    username: "testuser",
+  },
+];
 
 const handlers = [
   http.get("/posts", async ({ response }) => {
@@ -50,7 +56,7 @@ const handlers = [
   http.post("/users/register", async ({ request, response }) => {
     const { username, email, password } = await request.json();
     await delay(50); // ネットワーク遅延
-    UserData.push({ username, email, password });
+    UserData.push({ email, password, username });
     return response(201).json(
       {
         access_token: "mocked-access-token-12345",
@@ -58,14 +64,18 @@ const handlers = [
       {
         headers: {
           "Set-Cookie": `refresh_token=mocked-refresh-token-12345; HttpOnly; Path=/; SameSite=Strict`,
-        }
+        },
       },
     );
   }),
 
   http.post("/users/login", async ({ request, response }) => {
     const { email, password } = await request.json();
-    if (!UserData.some(user => user.email === email && user.password === password)) {
+    if (
+      !UserData.some(
+        (user) => user.email === email && user.password === password,
+      )
+    ) {
       return response(401).json({ message: "Invalid credentials" });
     }
     return response(200).json(

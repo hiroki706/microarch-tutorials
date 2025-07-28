@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,14 +13,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { client } from '@/lib/api/services'; // インターセプター付きのクライアント
-import { useAuthStore } from '@/store/auth';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { client } from "@/lib/api/services"; // インターセプター付きのクライアント
+import { useAuthStore } from "@/store/auth";
 
 const formSchema = z.object({
-  email: z.email({ message: '正しいメールアドレスを入力してください' }),
-  password: z.string().min(8, { message: 'パスワードは8文字以上です' }),
+  email: z.email({ message: "正しいメールアドレスを入力してください" }),
+  password: z.string().min(8, { message: "パスワードは8文字以上です" }),
 });
 
 type LoginFormProps = {
@@ -32,14 +32,18 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
   const form = useForm<z.infer<typeof formSchema>>({
+    defaultValues: { email: "", password: "" },
     resolver: zodResolver(formSchema),
-    defaultValues: { email: '', password: '' },
   });
 
   const mutation = useMutation({
     // インターセプター付きのapiClientを使ってAPIを呼び出す
     mutationFn: (data: z.infer<typeof formSchema>) =>
-      client.POST('/users/login', {body: data}),
+      client.POST("/users/login", { body: data }),
+    onError: () => {
+      // 実際にはここでエラーメッセージを表示する
+      console.error("ログインに失敗しました");
+    },
     onSuccess: (response) => {
       // レスポンスからアクセストークンを取得してストアに保存
       const access_token = response.data?.access_token;
@@ -47,10 +51,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         setAccessToken(access_token);
         onSuccess();
       }
-    },
-    onError: () => {
-      // 実際にはここでエラーメッセージを表示する
-      console.error('ログインに失敗しました');
     },
   });
 
@@ -60,7 +60,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="email"
@@ -68,7 +68,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             <FormItem>
               <FormLabel>メールアドレス</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="test@example.com" {...field} />
+                <Input placeholder="test@example.com" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,8 +87,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? '処理中...' : 'ログイン'}
+        <Button disabled={mutation.isPending} type="submit">
+          {mutation.isPending ? "処理中..." : "ログイン"}
         </Button>
       </form>
     </Form>
