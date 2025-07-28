@@ -3,17 +3,20 @@ on:
   push:
     branches: [ main ]
     paths:
-      - "backend/**"
+      - "backend-apigate/**"
       - ".github/workflows/go_ci.yaml"
   pull_request:
     branches: [ main ]
     paths:
-      - "backend/**"
+      - "backend-apigate/**"
       - ".github/workflows/go_ci.yaml"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend-apigate
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
