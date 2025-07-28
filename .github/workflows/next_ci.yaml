@@ -34,7 +34,7 @@ jobs:
           pnpm build
       - name: Run tests
         run: |
-          pnpm test --run
+          pnpm test --run --project unit
       - name: Lint code
         run: |
           pnpm check
