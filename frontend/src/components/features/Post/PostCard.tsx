@@ -5,10 +5,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Post } from "@/lib/api/services";
+import type { Schemas } from "@/lib/api/services";
 
 type PostCardProps = {
-  post: Post;
+  post: Schemas["Post"];
 };
 
 export const PostCard = ({ post }: PostCardProps) => {
