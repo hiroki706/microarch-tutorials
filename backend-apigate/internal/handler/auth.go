@@ -1,59 +1,38 @@
 package handler
 
 import (
-	"encoding/json"
-	"net/http"
+	"context"
 
 	"github.com/hiroki706/microarch-tutorials/backend-apigate/api"
 )
 
-func (s *Server) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	var req api.UserRegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
+func (s *Server) RegisterUser(ctx context.Context, r api.RegisterUserRequestObject) (api.RegisterUserResponseObject, error) {
+	req := *r.Body
 	// ユーザー登録のロジックを呼び出すだけ
-	err := s.authUC.RegisterUser(r.Context(), req)
+	err := s.authUC.RegisterUser(ctx, req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	w.WriteHeader(http.StatusNoContent) // 204 No Content
+	return api.RegisterUser204Response{}, nil
 }
-func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
-	var req api.UserLoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+func (s *Server) LoginUser(ctx context.Context, r api.LoginUserRequestObject) (api.LoginUserResponseObject, error) {
+	req := *r.Body
 
-	tokenPair, err := s.authUC.LoginUser(r.Context(), req)
+	tokenPair, err := s.authUC.LoginUser(ctx, req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
+		return nil, err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // 200 OK
-	json.NewEncoder(w).Encode(tokenPair)
+	return api.LoginUser200JSONResponse(*tokenPair), nil
 }
 
-func (s *Server) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	var req api.RefreshTokenRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+func (s *Server) RefreshToken(ctx context.Context, r api.RefreshTokenRequestObject) (api.RefreshTokenResponseObject, error) {
+	req := *r.Body
 
-	tokenPair, err := s.authUC.RefreshToken(r.Context(), req)
+	tokenPair, err := s.authUC.RefreshToken(ctx, req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
+		return nil, err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // 200 OK
-	json.NewEncoder(w).Encode(tokenPair)
+	return api.RefreshToken200JSONResponse(*tokenPair), nil
 }
