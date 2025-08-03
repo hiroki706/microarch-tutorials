@@ -14,7 +14,7 @@ type Server struct {
 }
 
 // 新しいServerのインスタンスを作成する
-func NewServer(postUC usecase.PostUsecase, authUC usecase.AuthUsecase) api.ServerInterface {
+func NewServer(postUC usecase.PostUsecase, authUC usecase.AuthUsecase) api.StrictServerInterface {
 	return &Server{
 		postUC: postUC,
 		authUC: authUC,
